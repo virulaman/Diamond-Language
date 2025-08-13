@@ -1,0 +1,3 @@
+#!/bin/bash
+# Blue Package Manager for Diamond Language
+python3 blue_package_manager.py "$@"
