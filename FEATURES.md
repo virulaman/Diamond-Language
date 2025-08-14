@@ -107,7 +107,6 @@ int main() {
 ### 🔧 Extensibility
 - **C API** for creating new modules
 - **Package system** for community extensions
-- **Web interface** for package management
 - **GitHub integration** for open source development
 
 ## Use Cases
