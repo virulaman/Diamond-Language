@@ -1,0 +1,6 @@
+use stdlib; //importing main libraries
+
+int main() { //starting point
+  show.txt("hello world from diamond!") //printing
+  return 0; //returning no errors
+}
