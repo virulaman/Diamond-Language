@@ -1,0 +1,16 @@
+use stdlib;
+use dmo_graphics;
+
+void draw() {
+  show.txt("Diamond graphics test");
+  show.txt("=" * 15);
+  dmo.gr.create.window(500, 500);
+  dmo.gr.create.sqr(40, 40, 40, 40 id=square, color=255, 255, 255);
+  dmo.gr.create.line(200, id=myline, color=349, 400, 200);
+  dmo.gr.display("hello from diamond graphics!", size=200, id=hello);
+  dmo.gr.create.crle(200, id=circle, color=000, 111, 222);
+}
+
+draw()
+                    
+  
