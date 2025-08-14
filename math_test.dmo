@@ -1,0 +1,24 @@
+use stdlib;
+use math;
+
+main() {
+show.txt("Diamond Math Module Test");
+
+show.txt("Testing sin(1.0): ");
+
+show.txt(sin(1.0));
+
+show.txt("Testing cos(0.0): ");
+    
+show.txt(cos(0.0));
+    
+show.txt("Testing sqrt(9): ");
+    
+show.txt(sqrt(9));
+
+show.txt("Testing pow(2, 3): ")
+
+show.txt(pow(2, 3));
+    
+    return 0;
+}
