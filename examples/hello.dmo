@@ -1,0 +1,15 @@
+// Hello World example in DMO language
+use stdlib;
+
+int main() {
+    show.txt("Hello, World!");
+    show.txt("Welcome to DMO programming language");
+
+    string name = "DMO Language";
+    show.txt("Language name: " + name);
+
+    int version = 1;
+    show.txt("Version: ", version);
+
+    return 0;
+}

@@ -1,0 +1,76 @@
+int main() {
+    show.txt("--- Testing Logical Operators ---\n");
+
+    // Test AND (&&)
+    if (1 && 1) {
+        show.txt("1 && 1 is true\n");
+    }
+    if (1 && 0) {
+        show.txt("1 && 0 is true\n"); // Should not print
+    } else {
+        show.txt("1 && 0 is false\n");
+    }
+
+    // Test OR (||)
+    if (1 || 0) {
+        show.txt("1 || 0 is true\n");
+    }
+    if (0 || 0) {
+        show.txt("0 || 0 is true\n"); // Should not print
+    } else {
+        show.txt("0 || 0 is false\n");
+    }
+
+    show.txt("\n--- Testing Else If ---\n");
+    int val = 10;
+    if (val < 5) {
+        show.txt("val is less than 5\n");
+    } else if (val < 15) {
+        show.txt("val is less than 15\n"); // Should print this
+    } else {
+        show.txt("val is 15 or greater\n");
+    }
+
+    show.txt("\n--- Testing Increment/Decrement and Modulo Operators ---\n");
+    int a = 5;
+    show.txt("Initial a = 5\n");
+
+    // Postfix increment
+    show.txt("a++ returns: ");
+    show.txt(a++);
+    show.txt("\n");
+    show.txt("a is now: ");
+    show.txt(a);
+    show.txt("\n");
+
+    // Prefix increment
+    show.txt("++a returns: ");
+    show.txt(++a);
+    show.txt("\n");
+    show.txt("a is now: ");
+    show.txt(a);
+    show.txt("\n");
+
+    // Postfix decrement
+    show.txt("a-- returns: ");
+    show.txt(a--);
+    show.txt("\n");
+    show.txt("a is now: ");
+    show.txt(a);
+    show.txt("\n");
+
+    // Prefix decrement
+    show.txt("--a returns: ");
+    show.txt(--a);
+    show.txt("\n");
+    show.txt("a is now: ");
+    show.txt(a);
+    show.txt("\n");
+
+    // Test Modulo
+    show.txt("10 % 3 = ");
+    show.txt(10 % 3);
+    show.txt("\n");
+
+    return 0;
+}

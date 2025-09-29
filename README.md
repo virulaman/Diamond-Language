@@ -1,89 +1,134 @@
-# Diamond Programming Language
+# DMO Programming Language Compiler
 
-## Overview
+DMO (Dynamic Modular Operations) is a C-implemented programming language with C#-like syntax and built-in graphics capabilities.
 
-This project is a fully functional C-implemented programming language called Diamond. The language features C#-like syntax with C-like program structure, unique I/O functions, graphics capabilities, and a module system. The entire compiler is implemented in C and includes lexer, parser, AST generator, and interpreter components.
+## Features
 
-## User Preferences
+- **C#-like syntax** with C-like program structure
+- **Unique I/O system** using `show.txt("")` for output
+- **Built-in graphics library** (`dmo_graphs`) with SVG output
+- **Module system** with `use <module>` syntax
+- **Complete compiler** with lexer, parser, AST, and interpreter
 
-Preferred communication style: Simple, everyday language.
+## Installation
 
-## Language Features
+### Pre-built Packages
 
-### Core Language Features
-- **C#-like syntax**: Familiar syntax for developers coming from C# backgrounds
-- **C-like structure**: Traditional C program structure with main() function entry point
-- **Unique I/O system**: `show.txt("")` for printing text and variables
-- **Graphics library**: Built-in graphics system with `dmo.gr.*` namespace for graphics operations
-- **Module system**: `use <module>` syntax for importing modules (stdlib, dmo_graphs, request)
-- **Data types**: Support for int, string, char with proper type checking
-- **Math operations**: Full arithmetic support (+, -, *, /, %) with C-style precedence
-- **OS integration**: System command execution with `system()`, `cls`, `clear` functions
-- **HTTP capabilities**: Request module with `request.get()` and `request.post()` functions
+#### Windows
+1. Download `dmo-compiler-windows.zip`
+2. Extract and run `build_windows.bat`
+3. Use `dmo.exe program.dmo`
 
-### Compiler Architecture
-- **Lexer**: Tokenizes source code and handles DMO-specific syntax
-- **Parser**: Generates Abstract Syntax Tree (AST) from tokens
-- **AST Generator**: Creates structured representation of the program
-- **Interpreter**: Executes the AST with proper function calls and module loading
-- **Module System**: Handles dynamic loading of stdlib and graphics modules
-
-### Graphics System
-- **dmo_graphs library**: Built-in graphics functionality
-- **SVG output**: Generates SVG files for graphics rendering
-- **Primitive operations**: create.window, create.sqr, create.crle, create.line, create.crve
-- **Coordinate system**: Standard X/Y positioning for graphics elements
-
-## Build System
-
-### Compilation
-- **Makefile**: Automated build system with clean, compile, and example targets
-- **GCC compiler**: Uses C99 standard with proper warning flags
-- **Static linking**: All components linked into single executable
-
-### Project Structure
-```
-├── main.c              # Entry point and file handling
-├── lexer.c/.h          # Lexical analysis and tokenization
-├── parser.c/.h         # Syntax parsing and AST generation
-├── ast.c/.h            # Abstract Syntax Tree definitions
-├── interpreter.c/.h    # Program execution engine
-├── modules.c/.h        # Module loading system
-├── stdlib_funcs.c/.h   # Standard library functions
-├── dmo_graphs.c/.h     # Graphics library implementation
-├── examples/           # Sample DMO programs
-└── Makefile           # Build configuration
+#### Debian/Ubuntu (.deb)
+```bash
+chmod +x build_deb.sh
+./build_deb.sh
+sudo dpkg -i dmo-compiler_1.0.0_amd64.deb
 ```
 
-### Example Programs
-- **hello.dmo**: Demonstrates basic I/O with show.txt function
-- **graphics_demo.dmo**: Shows graphics capabilities with SVG output
-- **modules_demo.dmo**: Complex example with functions, loops, and graphics
-- **math_demo.dmo**: Demonstrates all math operations including modulo and OS commands
-- **request_demo.dmo**: Shows HTTP request capabilities with external APIs
-- **advanced_demo.dmo**: Comprehensive demo of all language features
+#### Fedora/RHEL (.rpm)
+```bash
+chmod +x build_rpm.sh
+./build_rpm.sh
+sudo dnf install dmo-compiler-1.0.0-1.*.x86_64.rpm
+```
 
-## Recent Changes
-- **2025-08-13**: Fixed deployment configuration for production readiness:
-  - **Health Endpoints**: Added `/health`, `/healthz`, `/ready`, and `/status` endpoints for deployment monitoring
-  - **Production Entry Points**: Created `main.py`, `wsgi.py`, and `Procfile` for deployment
-  - **Gunicorn Configuration**: Added `gunicorn.conf.py` for production WSGI server with proper logging
-  - **Environment Variables**: Support for PORT and FLASK_ENV configuration
-  - **Startup Scripts**: Created `start.sh` for flexible production/development startup
-  - **Deployment Config**: Added `deploy.json` with proper health check configuration
-  - **Response Formatting**: Fixed health endpoints to return proper JSON responses
-- **2025-08-13**: Enhanced Diamond Language website with complete security and admin features:
-  - **Documentation System**: Complete guide to Diamond Language and all Blue packages
-  - **Secure Package Upload**: Strict .c, .h, .md file validation prevents script injection
-  - **Admin Panel**: Password-protected admin access (password: diamond123)
-  - **Public Extensions Browser**: Community package viewing with search functionality
-  - **Domain Research**: Found cheapest options - diamond-lang.net for $0.70/year at IONOS
-- **2025-08-13**: Successfully implemented complete "Blue" package manager system:
-  - **Package Installation**: `blue install <module>` command for module management
-  - **Extension Uploads**: `blue upload <file.c>` for community extensions
-  - **Module Registry**: API backend with searchable module database
-  - **6 Surprise Modules**: audio, gamedev, crypto, network, ai, database modules
-  - **Complete Package Ecosystem**: Install, search, list, info, upload functionality
-- **2025-08-13**: Advanced Diamond language features completed:
-  - **Math Module**: sin(), cos(), tan(), sigmoid(), sqrt(), pow() functions
-  - **Graphics S
+#### Universal Linux
+```bash
+chmod +x build_universal.sh
+./build_universal.sh
+```
+
+### Build from Source
+```bash
+make clean
+make dmo
+```
+
+## Usage
+
+### Basic Program
+```dmo
+use stdlib;
+
+int main() {
+    show.txt("Hello, World!");
+    return 0;
+}
+```
+
+### Graphics Program
+```dmo
+use dmo_graphs;
+
+int main() {
+    dmo.gr.create.window("My Window", 400, 400);
+    dmo.gr.create.sqr(50, 50, 100, 100);
+    dmo.gr.create.crle(200, 200, 75);
+    return 0;
+}
+```
+
+### Run Programs
+```bash
+dmo program.dmo
+```
+
+## Language Syntax
+
+### I/O Functions
+- `show.txt("text")` - Print text
+- `show.txt("Value:", variable)` - Print with variables
+- `scanf("%d")` - Input (returns string/number)
+- `fget("file.txt")` - Read file
+
+### Graphics Functions
+- `dmo.gr.create.window(title, width, height)` - Create window
+- `dmo.gr.create.sqr(x, y, width, height)` - Draw rectangle
+- `dmo.gr.create.crle(x, y, radius)` - Draw circle
+- `dmo.gr.create.line(length)` - Draw line
+- `dmo.gr.create.crve(radius, param)` - Draw curve
+
+### Modules
+- `use stdlib` - Standard library functions
+- `use dmo_graphs` - Graphics library
+
+### Data Types
+- `int` - Integer numbers
+- `string` - Text strings
+- `char` - Single characters
+
+## Examples
+
+The compiler includes three example programs:
+- `examples/hello.dmo` - Basic I/O demonstration
+- `examples/graphics_demo.dmo` - Graphics capabilities
+- `examples/modules_demo.dmo` - Complete feature showcase
+
+## VS Code Integration
+
+1. Install the DMO compiler using one of the methods above
+2. Create `.dmo` files in VS Code
+3. Use the integrated terminal to compile: `dmo program.dmo`
+4. Graphics output generates SVG files you can view directly
+
+## Architecture
+
+- **Lexer** (`lexer.c`) - Tokenization
+- **Parser** (`parser.c`) - AST generation
+- **Interpreter** (`interpreter.c`) - Program execution
+- **Modules** (`modules.c`) - Dynamic module loading
+- **Graphics** (`dmo_graphs.c`) - SVG generation
+- **Standard Library** (`stdlib_funcs.c`) - Built-in functions
+
+## License
+
+MIT License - See build scripts for full license text.
+
+## Development
+
+Built with:
+- C99 standard
+- GCC compiler
+- Make build system
+- Cross-platform compatibility

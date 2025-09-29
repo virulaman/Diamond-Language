@@ -380,6 +380,34 @@ Value execute_function_call(ASTNode* node, InterpreterContext* ctx) {
 }
 
 Value execute_binary_op(ASTNode* node, InterpreterContext* ctx) {
+    if (node->binary_op.operator == TOKEN_OR) {
+        Value left = execute_node(node->binary_op.left, ctx);
+        bool is_true = left.type == VALUE_NUMBER && left.number != 0;
+        if (is_true) {
+            free_value(left);
+            return create_number_value(1);
+        }
+        free_value(left);
+        Value right = execute_node(node->binary_op.right, ctx);
+        is_true = right.type == VALUE_NUMBER && right.number != 0;
+        free_value(right);
+        return create_number_value(is_true ? 1 : 0);
+    }
+
+    if (node->binary_op.operator == TOKEN_AND) {
+        Value left = execute_node(node->binary_op.left, ctx);
+        bool is_true = left.type == VALUE_NUMBER && left.number != 0;
+        if (!is_true) {
+            free_value(left);
+            return create_number_value(0);
+        }
+        free_value(left);
+        Value right = execute_node(node->binary_op.right, ctx);
+        is_true = right.type == VALUE_NUMBER && right.number != 0;
+        free_value(right);
+        return create_number_value(is_true ? 1 : 0);
+    }
+
     Value left = execute_node(node->binary_op.left, ctx);
     Value right = execute_node(node->binary_op.right, ctx);
     
@@ -617,6 +645,41 @@ Value execute_for_loop(ASTNode* node, InterpreterContext* ctx) {
 }
 
 Value execute_unary_op(ASTNode* node, InterpreterContext* ctx) {
+    if (node->unary_op.operator == TOKEN_INCREMENT || node->unary_op.operator == TOKEN_DECREMENT) {
+        if (node->unary_op.operand->type != AST_IDENTIFIER) {
+            fprintf(stderr, "Error: Operand for increment/decrement must be a variable.\n");
+            return create_void_value();
+        }
+
+        Variable* var = get_variable(ctx, node->unary_op.operand->identifier.value);
+        if (!var) {
+            fprintf(stderr, "Error: Undefined variable '%s' in increment/decrement operation.\n", node->unary_op.operand->identifier.value);
+            return create_void_value();
+        }
+
+        if (var->value.type != VALUE_NUMBER) {
+            fprintf(stderr, "Error: Increment/decrement operand must be a number.\n");
+            return create_void_value();
+        }
+
+        double original_value = var->value.number;
+        double new_value = original_value;
+
+        if (node->unary_op.operator == TOKEN_INCREMENT) {
+            new_value++;
+        } else {
+            new_value--;
+        }
+
+        set_variable(ctx, var->name, var->type, create_number_value(new_value));
+
+        if (node->unary_op.is_postfix) {
+            return create_number_value(original_value);
+        } else {
+            return create_number_value(new_value);
+        }
+    }
+
     Value operand = execute_node(node->unary_op.operand, ctx);
     Value result = create_void_value();
     
@@ -634,6 +697,7 @@ Value execute_unary_op(ASTNode* node, InterpreterContext* ctx) {
             }
             break;
         default:
+            // This case should not be reached for ++ and -- due to the check above
             fprintf(stderr, "Error: Unknown unary operator\n");
             result = create_number_value(0);
     }
