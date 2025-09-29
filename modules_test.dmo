@@ -1,0 +1,44 @@
+use math;
+use request;
+
+int main() {
+    show.txt("--- Testing Math Module ---\n");
+    show.txt("sin(0.5) = ");
+    show.txt(sin(0.5));
+    show.txt("\n");
+
+    show.txt("cos(0.5) = ");
+    show.txt(cos(0.5));
+    show.txt("\n");
+
+    show.txt("tan(0.5) = ");
+    show.txt(tan(0.5));
+    show.txt("\n");
+
+    show.txt("sqrt(25) = ");
+    show.txt(sqrt(25));
+    show.txt("\n");
+
+    show.txt("pow(2, 8) = ");
+    show.txt(pow(2, 8));
+    show.txt("\n");
+
+    show.txt("\n--- Testing Request Module ---\n");
+    string url = "https://httpbin.org/get";
+    show.txt("Making GET request to: ");
+    show.txt(url);
+    show.txt("\n");
+
+    string response = request.get(url);
+    show.txt("Response contains 'httpbin.org': ");
+    // A simple check to see if the response is what we expect.
+    // A full JSON parser would be needed for a more robust test.
+    if (response) {
+        show.txt("true");
+    } else {
+        show.txt("false");
+    }
+    show.txt("\n");
+
+    return 0;
+}

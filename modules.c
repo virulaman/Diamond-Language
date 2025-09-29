@@ -7,6 +7,8 @@
 #include "modules.h"
 #include "stdlib_funcs.h"
 #include "dmo_graphs.h"
+#include "math_module.h"
+#include "request_module.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,6 +133,18 @@ bool load_module(const char* module_name, InterpreterContext* ctx) {
         mark_module_loaded(module_name, "built-in");
         return true;
     }
+
+    if (strcmp(module_name, "math") == 0) {
+        init_math_module(ctx);
+        mark_module_loaded(module_name, "built-in");
+        return true;
+    }
+
+    if (strcmp(module_name, "request") == 0) {
+        init_request_module(ctx);
+        mark_module_loaded(module_name, "built-in");
+        return true;
+    }
     
     // Try to find and load external module file
     char* module_path = find_module_file(module_name);
@@ -142,7 +156,7 @@ bool load_module(const char* module_name, InterpreterContext* ctx) {
     // For now, just mark as loaded - full implementation would parse and execute the module
     mark_module_loaded(module_name, module_path);
     free(module_path);
-    
+
     printf("Module '%s' loaded successfully\n", module_name);
     return true;
 }

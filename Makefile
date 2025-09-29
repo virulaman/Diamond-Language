@@ -7,20 +7,20 @@ SRCDIR = .
 EXAMPLEDIR = examples
 
 # Source files
-SOURCES = main.c lexer.c parser.c ast.c interpreter.c modules.c stdlib_funcs.c dmo_graphs.c
+SOURCES = main.c lexer.c parser.c ast.c interpreter.c modules.c stdlib_funcs.c dmo_graphs.c math_module.c request_module.c
 
 # Object files
 OBJECTS = $(SOURCES:.c=.o)
 
 # Header files
-HEADERS = lexer.h parser.h ast.h interpreter.h modules.h stdlib_funcs.h dmo_graphs.h
+HEADERS = lexer.h parser.h ast.h interpreter.h modules.h stdlib_funcs.h dmo_graphs.h math_module.h request_module.h
 
 .PHONY: all clean examples test install
 
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) -lm
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) -lm -lcurl
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -57,9 +57,11 @@ lexer.o: lexer.c lexer.h
 parser.o: parser.c parser.h lexer.h ast.h
 ast.o: ast.c ast.h lexer.h
 interpreter.o: interpreter.c interpreter.h ast.h stdlib_funcs.h dmo_graphs.h modules.h
-modules.o: modules.c modules.h interpreter.h stdlib_funcs.h dmo_graphs.h
+modules.o: modules.c modules.h interpreter.h stdlib_funcs.h dmo_graphs.h math_module.h request_module.h
 stdlib_funcs.o: stdlib_funcs.c stdlib_funcs.h interpreter.h dmo_graphs.h
 dmo_graphs.o: dmo_graphs.c dmo_graphs.h interpreter.h
+math_module.o: math_module.c math_module.h interpreter.h
+request_module.o: request_module.c request_module.h interpreter.h
 
 help:
 	@echo "DMO Programming Language Build System"

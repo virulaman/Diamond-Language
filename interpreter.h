@@ -42,10 +42,24 @@ typedef struct Function {
     struct Function* next;
 } Function;
 
+// Forward declaration for circular dependency
+struct InterpreterContext;
+
+// Native function pointer
+typedef Value (*NativeFuncPtr)(ASTNode** args, int arg_count, struct InterpreterContext* ctx);
+
+// Native function structure
+typedef struct NativeFunction {
+    char* name;
+    NativeFuncPtr func;
+    struct NativeFunction* next;
+} NativeFunction;
+
 // Interpreter context
-typedef struct {
+typedef struct InterpreterContext {
     Variable* variables;
     Function* functions;
+    NativeFunction* native_functions;
     Variable* global_vars;
     Function* global_funcs;
     bool has_return;
@@ -83,12 +97,10 @@ Function* get_function(InterpreterContext* ctx, const char* name);
 // Value utilities
 Value create_number_value(double num);
 Value create_string_value(const char* str);
+void register_native_function(InterpreterContext* ctx, const char* name, NativeFuncPtr func);
 Value create_void_value();
 void free_value(Value value);
 Value copy_value(Value value);
 void print_value(Value value);
-
-// Built-in function execution
-Value call_builtin_function(const char* name, ASTNode** args, int arg_count, InterpreterContext* ctx);
 
 #endif // INTERPRETER_H

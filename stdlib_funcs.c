@@ -9,60 +9,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-// Built-in function names
-static const char* builtin_functions[] = {
-    "show.txt",
-    "scanf",
-    "fget",
-    "main",
-    NULL
-};
+// Forward declarations for built-in functions
+Value builtin_show_txt(ASTNode** args, int arg_count, InterpreterContext* ctx);
+Value builtin_scanf(ASTNode** args, int arg_count, InterpreterContext* ctx);
+Value builtin_fget(ASTNode** args, int arg_count, InterpreterContext* ctx);
 
 void init_stdlib_functions(InterpreterContext* ctx) {
-    // Standard library functions are called directly
-    // No need to register them in the context
-    printf("Standard library functions initialized\n");
-}
-
-bool is_builtin_function(const char* name) {
-    for (int i = 0; builtin_functions[i]; i++) {
-        if (strcmp(name, builtin_functions[i]) == 0) {
-            return true;
-        }
-    }
-
-    // Check for dmo graphics functions
-    return is_dmo_graphics_function(name);
-}
-
-bool is_dmo_graphics_function(const char* name) {
-    return strstr(name, "dmo.gr.") != NULL;
-}
-
-Value call_builtin_function(const char* name, ASTNode** args, int arg_count, InterpreterContext* ctx) {
-    // Handle show.txt function
-    if (strcmp(name, "show.txt") == 0) {
-        return builtin_show_txt(args, arg_count, ctx);
-    }
-
-    // Handle scanf function
-    if (strcmp(name, "scanf") == 0) {
-        return builtin_scanf(args, arg_count, ctx);
-    }
-
-    // Handle fget function
-    if (strcmp(name, "fget") == 0) {
-        return builtin_fget(args, arg_count, ctx);
-    }
-
-    // Handle dmo graphics functions
-    if (is_dmo_graphics_function(name)) {
-        return call_dmo_graphics_function(name, args, arg_count, ctx);
-    }
-
-    // Function not found
-    return create_void_value();
+    register_native_function(ctx, "show.txt", builtin_show_txt);
+    register_native_function(ctx, "scanf", builtin_scanf);
+    register_native_function(ctx, "fget", builtin_fget);
 }
 
 Value builtin_show_txt(ASTNode** args, int arg_count, InterpreterContext* ctx) {
