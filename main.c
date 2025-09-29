@@ -1,6 +1,6 @@
 /*
- * Diamond Programming Language Compiler/Interpreter
- * Main entry point for the Diamond language compiler
+ * DMO Programming Language Compiler/Interpreter
+ * Main entry point for the DMO language compiler
  */
 
 #include <stdio.h>
@@ -13,8 +13,8 @@
 
 void print_usage(const char* program_name) {
     printf("Usage: %s <source_file.dmo>\n", program_name);
-    printf("Diamond Programming Language Compiler/Interpreter\n");
-    printf("Supports C#-like syntax with built-in graphics library\n");
+    printf("DMO Programming Language Compiler/Interpreter\n");
+    printf("Supports C#-like syntax with built-in dmo_graphs graphics library\n");
 }
 
 char* read_file(const char* filename) {
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
-    printf("Diamond Compiler - Compiling '%s'\n", source_file);
+    printf("DMO Compiler - Compiling '%s'\n", source_file);
     
     // Initialize module system
     init_module_system();

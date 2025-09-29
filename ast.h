@@ -7,6 +7,7 @@
 #define AST_H
 
 #include "lexer.h"
+#include <stdbool.h>
 
 // AST Node types
 typedef enum {
@@ -124,6 +125,7 @@ struct ASTNode {
         struct {
             TokenType operator;
             ASTNode* operand;
+            bool is_postfix;
         } unary_op;
         
         // Literals

@@ -1,0 +1,19 @@
+// Graphics demonstration in DMO language
+use dmo_graphs;
+
+int main() {
+    show.txt("DMO Graphics Demo");
+
+    // Create a graphics window
+    dmo.gr.create.window("DMO Graphics Demo", 600);
+
+    // Draw some shapes
+    dmo.gr.create.line(200);
+    dmo.gr.create.sqr(50, 50, 100, 100);
+    dmo.gr.create.crle(75);
+    dmo.gr.create.crle(50, 100);
+
+    show.txt("Graphics rendered to output.svg");
+
+    return 0;
+}

@@ -230,6 +230,18 @@ TokenList* tokenize(const char* source) {
             column += 2;
             continue;
         }
+        if (current == '+' && source[pos + 1] == '+') {
+            add_token(tokens, TOKEN_INCREMENT, "++", line, column);
+            pos += 2;
+            column += 2;
+            continue;
+        }
+        if (current == '-' && source[pos + 1] == '-') {
+            add_token(tokens, TOKEN_DECREMENT, "--", line, column);
+            pos += 2;
+            column += 2;
+            continue;
+        }
         
         // Single-character tokens
         TokenType single_char_type = TOKEN_UNKNOWN;

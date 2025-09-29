@@ -1,0 +1,47 @@
+// Module system demonstration in DMO language
+use stdlib;
+use dmo_graphs;
+
+int calculate(int a, int b) {
+    return a + b * 2;
+}
+
+void demonstrate_input() {
+    show.txt("Enter your name:");
+    string user_name = scanf("%s");
+    show.txt("Hello, " + user_name + "!");
+}
+
+int main() {
+    show.txt("DMO Language Module Demo");
+    show.txt("========================");
+
+    // Demonstrate calculations
+    int result = calculate(5, 10);
+    show.txt("Calculation result: ", result);
+
+    // Demonstrate variables and loops
+    int counter = 0;
+    while (counter < 3) {
+        show.txt("Loop iteration: ", counter);
+        counter = counter + 1;
+    }
+
+    // Demonstrate graphics
+    dmo.gr.create.window("Module Demo Graphics", 400);
+    dmo.gr.create.sqr(20, 20, 50, 50);
+    dmo.gr.create.crle(30);
+
+    // Demonstrate conditional logic
+    if (result > 20) {
+        show.txt("Result is greater than 20");
+    } else {
+        show.txt("Result is 20 or less");
+    }
+
+    // Demonstrate user input (commented out for automated testing)
+    // demonstrate_input();
+
+    show.txt("Demo completed successfully!");
+    return 0;
+}

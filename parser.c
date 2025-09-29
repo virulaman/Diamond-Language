@@ -536,7 +536,8 @@ ASTNode* parse_multiplication(Parser* parser) {
 }
 
 ASTNode* parse_unary(Parser* parser) {
-    if (match_token(parser, TOKEN_NOT) || match_token(parser, TOKEN_MINUS)) {
+    if (match_token(parser, TOKEN_NOT) || match_token(parser, TOKEN_MINUS) ||
+        match_token(parser, TOKEN_INCREMENT) || match_token(parser, TOKEN_DECREMENT)) {
         TokenType operator = current_token(parser)->type;
         advance_token(parser);
         ASTNode* operand = parse_unary(parser);
@@ -544,6 +545,7 @@ ASTNode* parse_unary(Parser* parser) {
         ASTNode* unary = create_ast_node(AST_UNARY_OP, 0, 0);
         unary->unary_op.operator = operator;
         unary->unary_op.operand = operand;
+        unary->unary_op.is_postfix = false;
         return unary;
     }
     
@@ -551,95 +553,100 @@ ASTNode* parse_unary(Parser* parser) {
 }
 
 ASTNode* parse_primary(Parser* parser) {
+    ASTNode* expr = NULL;
+
     if (match_token(parser, TOKEN_NUMBER)) {
         double value = atof(current_token(parser)->value);
         advance_token(parser);
-        return create_number_node(value);
-    }
-    
-    if (match_token(parser, TOKEN_STRING)) {
+        expr = create_number_node(value);
+    } else if (match_token(parser, TOKEN_STRING)) {
         char* value = strdup(current_token(parser)->value);
         advance_token(parser);
-        return create_string_node(value);
-    }
-    
-    if (match_token(parser, TOKEN_IDENTIFIER)) {
+        expr = create_string_node(value);
+    } else if (match_token(parser, TOKEN_IDENTIFIER)) {
         char* name = strdup(current_token(parser)->value);
         advance_token(parser);
         
-        // Check for function call
         if (match_token(parser, TOKEN_LPAREN)) {
-            return parse_function_call(parser, name);
-        }
-        
-        // Check for member access (e.g., dmo.gr.create)
-        ASTNode* node = create_identifier_node(name);
-        while (match_token(parser, TOKEN_DOT)) {
-            advance_token(parser); // consume '.'
-            if (!match_token(parser, TOKEN_IDENTIFIER)) {
-                parser_error(parser, "Expected identifier after '.'");
-                free_ast(node);
-                return NULL;
+            expr = parse_function_call(parser, name);
+        } else {
+            ASTNode* node = create_identifier_node(name);
+            while (match_token(parser, TOKEN_DOT)) {
+                advance_token(parser); // consume '.'
+                if (!match_token(parser, TOKEN_IDENTIFIER)) {
+                    parser_error(parser, "Expected identifier after '.'");
+                    free_ast(node);
+                    return NULL;
+                }
+                char* member = strdup(current_token(parser)->value);
+                advance_token(parser);
+                node = create_member_access_node(node, member);
             }
-            char* member = strdup(current_token(parser)->value);
-            advance_token(parser);
-            node = create_member_access_node(node, member);
-        }
-        
-        // Check for function call after member access (e.g., show.txt())
-        if (match_token(parser, TOKEN_LPAREN)) {
-            // Convert member access chain to function name string
-            char* func_name = malloc(256);
-            func_name[0] = '\0';
             
-            // Build function name from member access chain
-            if (node->type == AST_MEMBER_ACCESS) {
-                ASTNode* current = node;
-                char* parts[10];
-                int part_count = 0;
+            if (match_token(parser, TOKEN_LPAREN)) {
+                char* func_name = malloc(256);
+                func_name[0] = '\0';
                 
-                // Collect all parts of the member access chain
-                while (current->type == AST_MEMBER_ACCESS && part_count < 9) {
-                    parts[part_count++] = current->member_access.member;
-                    current = current->member_access.object;
-                }
-                
-                // Add the root identifier
-                if (current->type == AST_IDENTIFIER && part_count < 9) {
-                    parts[part_count++] = current->identifier.value;
-                }
-                
-                // Build the function name string in reverse order
-                for (int i = part_count - 1; i >= 0; i--) {
-                    strcat(func_name, parts[i]);
-                    if (i > 0) {
-                        strcat(func_name, ".");
+                if (node->type == AST_MEMBER_ACCESS) {
+                    ASTNode* current = node;
+                    char* parts[10];
+                    int part_count = 0;
+
+                    while (current->type == AST_MEMBER_ACCESS && part_count < 9) {
+                        parts[part_count++] = current->member_access.member;
+                        current = current->member_access.object;
                     }
+
+                    if (current->type == AST_IDENTIFIER && part_count < 9) {
+                        parts[part_count++] = current->identifier.value;
+                    }
+
+                    for (int i = part_count - 1; i >= 0; i--) {
+                        strcat(func_name, parts[i]);
+                        if (i > 0) {
+                            strcat(func_name, ".");
+                        }
+                    }
+                } else if (node->type == AST_IDENTIFIER) {
+                    strcpy(func_name, node->identifier.value);
                 }
-            } else if (node->type == AST_IDENTIFIER) {
-                strcpy(func_name, node->identifier.value);
+
+                free_ast(node);
+                expr = parse_function_call(parser, func_name);
+            } else {
+                expr = node;
             }
-            
-            // Free the member access node and parse as function call
-            free_ast(node);
-            return parse_function_call(parser, func_name);
         }
-        
-        return node;
-    }
-    
-    if (match_token(parser, TOKEN_LPAREN)) {
+    } else if (match_token(parser, TOKEN_LPAREN)) {
         advance_token(parser);
-        ASTNode* expr = parse_expression(parser);
+        expr = parse_expression(parser);
         if (!consume_token(parser, TOKEN_RPAREN, "Expected ')' after expression")) {
             free_ast(expr);
             return NULL;
         }
-        return expr;
+    } else {
+        parser_error(parser, "Expected expression");
+        return NULL;
     }
-    
-    parser_error(parser, "Expected expression");
-    return NULL;
+
+    if (parser->has_error) {
+        if (expr) free_ast(expr);
+        return NULL;
+    }
+
+    // Now handle postfix increment/decrement
+    while (match_token(parser, TOKEN_INCREMENT) || match_token(parser, TOKEN_DECREMENT)) {
+        TokenType op_type = current_token(parser)->type;
+        advance_token(parser);
+
+        ASTNode* unary_node = create_ast_node(AST_UNARY_OP, 0, 0);
+        unary_node->unary_op.operand = expr;
+        unary_node->unary_op.operator = op_type;
+        unary_node->unary_op.is_postfix = true;
+        expr = unary_node;
+    }
+
+    return expr;
 }
 
 ASTNode* parse_function_call(Parser* parser, char* name) {
@@ -723,8 +730,15 @@ ASTNode* parse_if_statement(Parser* parser) {
     
     ASTNode* else_stmt = NULL;
     if (match_token(parser, TOKEN_ELSE)) {
-        advance_token(parser);
-        else_stmt = parse_statement(parser);
+        advance_token(parser); // Consume 'else'
+        if (match_token(parser, TOKEN_IF)) {
+            // This is an 'else if' construct.
+            else_stmt = parse_if_statement(parser);
+        } else {
+            // This is a regular 'else' block.
+            else_stmt = parse_statement(parser);
+        }
+
         if (!else_stmt) {
             free_ast(condition);
             free_ast(then_stmt);
