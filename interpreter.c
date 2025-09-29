@@ -17,6 +17,7 @@ InterpreterContext* create_interpreter_context() {
     InterpreterContext* ctx = malloc(sizeof(InterpreterContext));
     ctx->variables = NULL;
     ctx->functions = NULL;
+    ctx->native_functions = NULL;
     ctx->global_vars = NULL;
     ctx->global_funcs = NULL;
     ctx->has_return = false;
@@ -44,6 +45,15 @@ void free_interpreter_context(InterpreterContext* ctx) {
         free(func->return_type);
         free(func);
         func = next;
+    }
+
+    // Free native functions
+    NativeFunction* native_func = ctx->native_functions;
+    while (native_func) {
+        NativeFunction* next = native_func->next;
+        free(native_func->name);
+        free(native_func);
+        native_func = next;
     }
     
     free_value(ctx->return_value);
@@ -95,6 +105,14 @@ void print_value(Value value) {
             printf("void");
             break;
     }
+}
+
+void register_native_function(InterpreterContext* ctx, const char* name, NativeFuncPtr func) {
+    NativeFunction* native_func = malloc(sizeof(NativeFunction));
+    native_func->name = strdup(name);
+    native_func->func = func;
+    native_func->next = ctx->native_functions;
+    ctx->native_functions = native_func;
 }
 
 void set_variable(InterpreterContext* ctx, const char* name, const char* type, Value value) {
@@ -333,18 +351,13 @@ Value execute_assignment(ASTNode* node, InterpreterContext* ctx) {
 }
 
 Value execute_function_call(ASTNode* node, InterpreterContext* ctx) {
-    // Check for built-in functions first
-    Value result = call_builtin_function(node->func_call.name, node->func_call.arguments, 
-                                       node->func_call.arg_count, ctx);
-    
-    // Check if builtin function was actually called (not just returned void by default)
-    // For successful builtin calls that return void, we still want to return that result
-    if (result.type != VALUE_VOID || 
-        strcmp(node->func_call.name, "show.txt") == 0 ||
-        strcmp(node->func_call.name, "scanf") == 0 ||
-        strcmp(node->func_call.name, "fget") == 0 ||
-        is_dmo_graphics_function(node->func_call.name)) {
-        return result;
+    // Check for native functions first
+    NativeFunction* native_func = ctx->native_functions;
+    while (native_func) {
+        if (strcmp(native_func->name, node->func_call.name) == 0) {
+            return native_func->func(node->func_call.arguments, node->func_call.arg_count, ctx);
+        }
+        native_func = native_func->next;
     }
     
     // Look for user-defined functions
@@ -358,6 +371,7 @@ Value execute_function_call(ASTNode* node, InterpreterContext* ctx) {
     InterpreterContext* func_ctx = create_interpreter_context();
     func_ctx->global_vars = ctx->variables;
     func_ctx->global_funcs = ctx->functions;
+    func_ctx->native_functions = ctx->native_functions; // Pass native functions
     
     // Bind parameters
     for (int i = 0; i < func->param_count && i < node->func_call.arg_count; i++) {
@@ -375,6 +389,8 @@ Value execute_function_call(ASTNode* node, InterpreterContext* ctx) {
         return_val = copy_value(func_ctx->return_value);
     }
     
+    // Avoid double-freeing the shared native function list
+    func_ctx->native_functions = NULL;
     free_interpreter_context(func_ctx);
     return return_val;
 }
